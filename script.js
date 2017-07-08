@@ -41,27 +41,23 @@ function loadData() {
     });
 
     // load Wikipedia articles
-    var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + cityStr + '&format=json&callback-wikiCallback';
-
-    var wikiRequestTimeout = setTimeout(function() {
-        $wikiElem.text("Failed to get Wikipedia Resources");
-    }, 8000);
-
     $.ajax({
-        url: wikiUrl,
-        dataType: "jsonp",
-        success: function(response) {
-            var articleList = response[1];
+        type: 'GET',
+        url: 'https://en.wikipedia.org/w/api.php?action=query&titles=' + citystr + '&prop=images&imlimit=10',
+        dataType: 'jsonp',
+        success: function(data) {
+            console.log(data);
+            /*
+            results = data.response.docs;
 
-            for (var i = 0; i < articleList.length; i++) {
-                articleStr = articleList[i];
-                var url = 'http://en.wikipedia.org/wiki/' + articleStr;
-                $wikiElem.append('<li><a href="' + url + '">' + articleStr + '</a></li>');
+            for(var i in results) {
+            var result = results[i];
+            $('#wikipedia-links').append("<li><a href='" + result.web_url + "'>" + result.headline + "</a></li>");
             };
-
-            clearTimeout(wikiRequestTimeout);
+            */
         }
     });
+    
 
     return false;
 };
