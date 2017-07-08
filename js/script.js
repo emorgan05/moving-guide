@@ -25,24 +25,42 @@ function loadData() {
     var nytUrl = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
     nytUrl += '?' + $.param({
         'api-key': "c95058c8a60a42c5b9c063e4901717a2",
-        'q': address
+        'q': cityStr,
+        'fl': "web_url,snippet,headline"
     });
 
     $.getJSON( nytUrl, function( data ) {
-        var articles = [];
-        $.each(data, function())
-        console.log(data);
-        /*
-        var items = [];
-        $.each( data, function( key, val ) {
-            items.push( "<li id='" + key + "'>" + val + "</li>" );
-        });
- 
-        $( "<ul/>", {
-            "class": "article-list",
-            html: items.join( "" )
-        }).appendTo( "$nytElem" );
-*/
+        results = data.response.docs;
+
+        for(var i in results) {
+            var result = results[i];
+            $('.article-list').append("<li class='article'><a href='" + result.web_url + "'>" + result.headline.main + "</a>" + "<p>" + result.snippet + "</p></li>");
+        };
+    }).error(function(e) {
+            $nytHeaderElem.text("New York Times articles could not be loaded");
+    });
+
+    // load Wikipedia articles
+    var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + cityStr + '&format=json&callback-wikiCallback';
+
+    var wikiRequestTimeout = setTimeout(function() {
+        $wikiElem.text("Failed to get Wikipedia Resources");
+    }, 8000);
+
+    $.ajax({
+        url: wikiUrl,
+        dataType: "jsonp",
+        success: function(response) {
+            var articleList = response[1];
+
+            for (var i = 0; i < articleList.length; i++) {
+                articleStr = articleList[i];
+                var url = 'http://en.wikipedia.org/wiki/' + articleStr;
+                $wikiElem.append('<li><a href="' + url + '">' + articleStr + '</a></li>');
+            };
+
+            clearTimeout(wikiRequestTimeout);
+        }
     });
 
     return false;
